@@ -170,4 +170,38 @@ public class UtenteServiceImpl implements UtenteService {
 		}
 	}
 
+	@Override
+	public void rimuoviRuoloDaUtente(Utente utenteEsistente, Ruolo ruoloInstance) throws Exception {
+		// questo è come una connection
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			// questo è come il MyConnection.getConnection()
+			entityManager.getTransaction().begin();
+
+			// uso l'injection per il dao
+			utenteDAO.setEntityManager(entityManager);
+
+			// 'attacco' alla sessione di hibernate i due oggetti
+			// così jpa capisce che se è già presente quel ruolo non deve essere inserito
+			utenteEsistente = entityManager.merge(utenteEsistente);
+			ruoloInstance = entityManager.merge(ruoloInstance);
+
+			utenteEsistente.getRuoli().remove(ruoloInstance);
+			// l'update non viene richiamato a mano in quanto
+			// risulta automatico, infatti il contesto di persistenza
+			// rileva che utenteEsistente ora è dirty vale a dire che una sua
+			// proprieta ha subito una modifica (vale anche per i Set ovviamente)
+
+			entityManager.getTransaction().commit();
+		} catch (Exception e) {
+			entityManager.getTransaction().rollback();
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+
+	}
+
 }

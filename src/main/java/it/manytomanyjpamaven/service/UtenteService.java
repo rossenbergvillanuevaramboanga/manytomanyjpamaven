@@ -19,6 +19,8 @@ public interface UtenteService {
 	public void rimuovi(Utente utenteInstance) throws Exception;
 
 	public void aggiungiRuolo(Utente utenteEsistente, Ruolo ruoloInstance) throws Exception;
+	
+	public void rimuoviRuoloDaUtente(Utente utenteEsistente, Ruolo ruoloInstance) throws Exception;
 
 	public Utente caricaUtenteSingoloConRuoli(Long id) throws Exception;
 

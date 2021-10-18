@@ -33,6 +33,9 @@ public class ManyToManyTest {
 			testModificaStatoUtente(utenteServiceInstance);
 			System.out.println("In tabella Utente ci sono " + utenteServiceInstance.listAll().size() + " elementi.");
 
+			testRimuoviRuoloDaUtente(ruoloServiceInstance, utenteServiceInstance);
+			System.out.println("In tabella Utente ci sono " + utenteServiceInstance.listAll().size() + " elementi.");
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -68,7 +71,7 @@ public class ManyToManyTest {
 			UtenteService utenteServiceInstance) throws Exception {
 		System.out.println(".......testCollegaUtenteARuoloEsistente inizio.............");
 
-		Ruolo ruoloEsistenteSuDb = ruoloServiceInstance.caricaSingoloElemento(1L);
+		Ruolo ruoloEsistenteSuDb = ruoloServiceInstance.cercaPerDescrizioneECodice("Administrator", "ROLE_ADMIN");
 		if (ruoloEsistenteSuDb == null)
 			throw new RuntimeException("testCollegaUtenteARuoloEsistente fallito: ruolo inesistente ");
 
@@ -105,6 +108,44 @@ public class ManyToManyTest {
 			throw new RuntimeException("testModificaStatoUtente fallito: modifica non avvenuta correttamente ");
 
 		System.out.println(".......testModificaStatoUtente fine: PASSED.............");
+	}
+
+	private static void testRimuoviRuoloDaUtente(RuoloService ruoloServiceInstance, UtenteService utenteServiceInstance)
+			throws Exception {
+		System.out.println(".......testRimuoviRuoloDaUtente inizio.............");
+
+		// carico un ruolo e lo associo ad un nuovo utente
+		Ruolo ruoloEsistenteSuDb = ruoloServiceInstance.cercaPerDescrizioneECodice("Administrator", "ROLE_ADMIN");
+		if (ruoloEsistenteSuDb == null)
+			throw new RuntimeException("testRimuoviRuoloDaUtente fallito: ruolo inesistente ");
+
+		// mi creo un utente inserendolo direttamente su db
+		Utente utenteNuovo = new Utente("aldo.manuzzi", "pwd@2", "aldo", "manuzzi", new Date());
+		utenteServiceInstance.inserisciNuovo(utenteNuovo);
+		if (utenteNuovo.getId() == null)
+			throw new RuntimeException("testRimuoviRuoloDaUtente fallito: utente non inserito ");
+		utenteServiceInstance.aggiungiRuolo(utenteNuovo, ruoloEsistenteSuDb);
+
+		// ora ricarico il record e provo a disassociare il ruolo
+		Utente utenteReloaded = utenteServiceInstance.caricaUtenteSingoloConRuoli(utenteNuovo.getId());
+		boolean confermoRuoloPresente = false;
+		for (Ruolo ruoloItem : utenteReloaded.getRuoli()) {
+			if (ruoloItem.getCodice().equals(ruoloEsistenteSuDb.getCodice())) {
+				confermoRuoloPresente = true;
+				break;
+			}
+		}
+
+		if (!confermoRuoloPresente)
+			throw new RuntimeException("testRimuoviRuoloDaUtente fallito: utente e ruolo non associati ");
+
+		// ora provo la rimozione vera e propria ma poi forzo il caricamento per fare un confronto 'pulito'
+		utenteServiceInstance.rimuoviRuoloDaUtente(utenteReloaded, ruoloEsistenteSuDb);
+		utenteReloaded = utenteServiceInstance.caricaUtenteSingoloConRuoli(utenteNuovo.getId());
+		if (!utenteReloaded.getRuoli().isEmpty())
+			throw new RuntimeException("testRimuoviRuoloDaUtente fallito: ruolo ancora associato ");
+
+		System.out.println(".......testRimuoviRuoloDaUtente fine: PASSED.............");
 	}
 
 }
