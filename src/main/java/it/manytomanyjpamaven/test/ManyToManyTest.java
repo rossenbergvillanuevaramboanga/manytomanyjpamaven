@@ -36,7 +36,7 @@ public class ManyToManyTest {
 			testRimuoviRuoloDaUtente(ruoloServiceInstance, utenteServiceInstance);
 			System.out.println("In tabella Utente ci sono " + utenteServiceInstance.listAll().size() + " elementi.");
 
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 		} finally {
 			// questa è necessaria per chiudere tutte le connessioni quindi rilasciare il
