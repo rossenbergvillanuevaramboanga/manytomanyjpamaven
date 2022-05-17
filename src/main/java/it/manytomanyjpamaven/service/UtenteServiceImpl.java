@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 import it.manytomanyjpamaven.dao.EntityManagerUtil;
+import it.manytomanyjpamaven.dao.RuoloDAO;
 import it.manytomanyjpamaven.dao.UtenteDAO;
 import it.manytomanyjpamaven.model.Ruolo;
 import it.manytomanyjpamaven.model.Utente;
@@ -12,11 +13,19 @@ import it.manytomanyjpamaven.model.Utente;
 public class UtenteServiceImpl implements UtenteService {
 
 	private UtenteDAO utenteDAO;
+	private RuoloDAO ruoloDAO;
 
 	@Override
 	public void setUtenteDAO(UtenteDAO utenteDAO) {
 		this.utenteDAO = utenteDAO;
 	}
+	
+	@Override
+	public void setRuoloDAO(RuoloDAO ruoloDAO) {
+		this.ruoloDAO = ruoloDAO;
+	}
+	
+	
 
 	@Override
 	public List<Utente> listAll() throws Exception {
@@ -171,7 +180,7 @@ public class UtenteServiceImpl implements UtenteService {
 	}
 
 	@Override
-	public void rimuoviRuoloDaUtente(Utente utenteEsistente, Ruolo ruoloInstance) throws Exception {
+	public void rimuoviRuoloDaUtente(Long idUtente,Long idRuolo) throws Exception {
 		// questo è come una connection
 		EntityManager entityManager = EntityManagerUtil.getEntityManager();
 
@@ -181,11 +190,12 @@ public class UtenteServiceImpl implements UtenteService {
 
 			// uso l'injection per il dao
 			utenteDAO.setEntityManager(entityManager);
+			ruoloDAO.setEntityManager(entityManager);
 
-			// 'attacco' alla sessione di hibernate i due oggetti
+			// carico nella sessione di hibernate i due oggetti
 			// così jpa capisce che se è già presente quel ruolo non deve essere inserito
-			utenteEsistente = entityManager.merge(utenteEsistente);
-			ruoloInstance = entityManager.merge(ruoloInstance);
+			Utente utenteEsistente = utenteDAO.findByIdFetchingRuoli(idUtente);
+			Ruolo ruoloInstance = ruoloDAO.get(idRuolo);
 
 			utenteEsistente.getRuoli().remove(ruoloInstance);
 			// l'update non viene richiamato a mano in quanto

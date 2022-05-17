@@ -69,7 +69,7 @@ public class RuoloServiceImpl implements RuoloService {
 	}
 
 	@Override
-	public void rimuovi(Ruolo ruoloInstance) throws Exception {
+	public void rimuovi(Long idRuoloToRemove) throws Exception {
 		// TODO Auto-generated method stub
 
 	}

@@ -14,7 +14,7 @@ public interface RuoloService {
 
 	public void inserisciNuovo(Ruolo ruoloInstance) throws Exception;
 
-	public void rimuovi(Ruolo ruoloInstance) throws Exception;
+	public void rimuovi(Long idRuoloToRemove) throws Exception;
 
 	public Ruolo cercaPerDescrizioneECodice(String descrizione, String codice) throws Exception;
 

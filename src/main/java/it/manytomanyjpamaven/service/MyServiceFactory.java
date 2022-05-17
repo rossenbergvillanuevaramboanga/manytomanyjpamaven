@@ -13,6 +13,7 @@ public class MyServiceFactory {
 			UTENTE_SERVICE_INSTANCE = new UtenteServiceImpl();
 
 		UTENTE_SERVICE_INSTANCE.setUtenteDAO(MyDAOFactory.getUtenteDAOInstance());
+		UTENTE_SERVICE_INSTANCE.setRuoloDAO(MyDAOFactory.getRuoloDAOInstance());
 		return UTENTE_SERVICE_INSTANCE;
 	}
 

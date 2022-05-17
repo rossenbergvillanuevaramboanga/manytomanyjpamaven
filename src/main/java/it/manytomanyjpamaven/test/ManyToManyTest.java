@@ -140,7 +140,7 @@ public class ManyToManyTest {
 			throw new RuntimeException("testRimuoviRuoloDaUtente fallito: utente e ruolo non associati ");
 
 		// ora provo la rimozione vera e propria ma poi forzo il caricamento per fare un confronto 'pulito'
-		utenteServiceInstance.rimuoviRuoloDaUtente(utenteReloaded, ruoloEsistenteSuDb);
+		utenteServiceInstance.rimuoviRuoloDaUtente(utenteReloaded.getId(), ruoloEsistenteSuDb.getId());
 		utenteReloaded = utenteServiceInstance.caricaUtenteSingoloConRuoli(utenteNuovo.getId());
 		if (!utenteReloaded.getRuoli().isEmpty())
 			throw new RuntimeException("testRimuoviRuoloDaUtente fallito: ruolo ancora associato ");
