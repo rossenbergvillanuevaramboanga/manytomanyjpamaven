@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import it.manytomanyjpamaven.model.Ruolo;
+import it.manytomanyjpamaven.model.Utente;
 
 public class RuoloDAOImpl implements RuoloDAO {
 
@@ -18,7 +19,7 @@ public class RuoloDAOImpl implements RuoloDAO {
 	@Override
 	public List<Ruolo> list() throws Exception {
 		// TODO Auto-generated method stub
-		return null;
+		return entityManager.createQuery("from Ruolo",Ruolo.class).getResultList();
 	}
 
 	@Override
@@ -29,6 +30,10 @@ public class RuoloDAOImpl implements RuoloDAO {
 	@Override
 	public void update(Ruolo ruoloInstance) throws Exception {
 		// TODO Auto-generated method stub
+		if(ruoloInstance == null) {
+			throw new Exception("Problema valore di input");
+		}
+		ruoloInstance = entityManager.merge(ruoloInstance);
 
 	}
 
@@ -37,15 +42,16 @@ public class RuoloDAOImpl implements RuoloDAO {
 		if (ruoloInstance == null) {
 			throw new Exception("Problema valore in input");
 		}
-
 		entityManager.persist(ruoloInstance);
-
 	}
 
 	@Override
 	public void delete(Ruolo ruoloInstance) throws Exception {
 		// TODO Auto-generated method stub
-
+		if(ruoloInstance == null) {
+			throw new Exception("Problema valore in input");
+		}
+		entityManager.remove(entityManager.merge(ruoloInstance));
 	}
 
 	@Override
@@ -56,6 +62,13 @@ public class RuoloDAOImpl implements RuoloDAO {
 				.setParameter(2, codice);
 		
 		return query.getResultStream().findFirst().orElse(null);
+	}
+
+	@Override
+	public List<String> listAllDistinctDescriptionOfUsers() {
+		// TODO Auto-generated method stub
+		TypedQuery<String> query = entityManager.createQuery("select distinct r.descrizione FROM Utente u inner join u.ruoli r", String.class);
+		return query.getResultList();
 	}
 
 }

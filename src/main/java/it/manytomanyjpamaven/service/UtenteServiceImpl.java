@@ -1,12 +1,16 @@
 package it.manytomanyjpamaven.service;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import com.sun.javadoc.ThrowsTag;
+
 import it.manytomanyjpamaven.dao.EntityManagerUtil;
 import it.manytomanyjpamaven.dao.RuoloDAO;
 import it.manytomanyjpamaven.dao.UtenteDAO;
+import it.manytomanyjpamaven.exception.UtenteConRuoliAssociatiException;
 import it.manytomanyjpamaven.model.Ruolo;
 import it.manytomanyjpamaven.model.Utente;
 
@@ -120,6 +124,31 @@ public class UtenteServiceImpl implements UtenteService {
 	@Override
 	public void rimuovi(Long idUtente) throws Exception {
 		// TODO Auto-generated method stub
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			// questo è come il MyConnection.getConnection()
+			entityManager.getTransaction().begin();
+
+			// uso l'injection per il dao
+			utenteDAO.setEntityManager(entityManager);
+			
+			// if(!utenteDAO.get(idUtente).getRuoli().isEmpty())
+			
+			if( !utenteDAO.findByIdFetchingRuoli(idUtente).getRuoli().isEmpty()) 
+				throw new UtenteConRuoliAssociatiException("L'utente che stai eliminando ha un ruolo");
+
+			// eseguo quello che realmente devo fare
+			utenteDAO.delete(utenteDAO.get(idUtente));
+
+			entityManager.getTransaction().commit();
+		} catch (Exception e) {
+			entityManager.getTransaction().rollback();
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
 
 	}
 
@@ -210,6 +239,86 @@ public class UtenteServiceImpl implements UtenteService {
 			EntityManagerUtil.closeEntityManager(entityManager);
 		}
 
+	}
+
+	@Override
+	public List<Utente> listAllCreatiInMeseAnno(Date data) throws Exception {
+		// TODO Auto-generated method stub
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			// uso l'injection per il dao
+			utenteDAO.setEntityManager(entityManager);
+
+			// eseguo quello che realmente devo fare
+			return utenteDAO.listAllUsersCreatedInMonthYear(data);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+
+	@Override
+	public int contaNumeroUtentiAmministratori() throws Exception {
+		// TODO Auto-generated method stub
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			// uso l'injection per il dao
+			utenteDAO.setEntityManager(entityManager);
+
+			// eseguo quello che realmente devo fare
+			return utenteDAO.countNumberOfUsersAdministrator();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+
+	@Override
+	public List<Utente> listAllUtentiPasswordInferioreAdOtto() throws Exception {
+		// TODO Auto-generated method stub
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			// uso l'injection per il dao
+			utenteDAO.setEntityManager(entityManager);
+
+			// eseguo quello che realmente devo fare
+			return utenteDAO.listAllUsersWithPasswordLengthUnderEight();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+
+	@Override
+	public boolean esisteUtenteDisabilitatoCheEAdmin() throws Exception {
+		// TODO Auto-generated method stub
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			// uso l'injection per il dao
+			utenteDAO.setEntityManager(entityManager);
+
+			// eseguo quello che realmente devo fare
+			return utenteDAO.existsUserAdminDisabled();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
 	}
 
 }
